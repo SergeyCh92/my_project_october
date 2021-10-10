@@ -1,6 +1,7 @@
 import requests
 import json
-import ya
+from ya import YaUpLoader
+import os
 from pprint import pprint
 
 
@@ -9,6 +10,9 @@ my_id = '22708602'
 with open('toc_vk.txt') as f:
     token = f.read().strip()
 URL = 'https://api.vk.com/method/'
+
+with open('toc_ya.txt') as f:
+    token_ya = f.read().strip()
 
 
 def get_data(id):
@@ -51,58 +55,41 @@ def get_photo(result):
             if int(i['height']) + int(i['width']) > max_size:
                 max_size = int(i['height']) + int(i['width'])
                 download_image = requests.get(url=i['url'])
+                type_photo = i['type']
         likes = str(photo['likes']['count'])
         if likes == quantity_likes:
             likes = f'{likes}({str(count)})'
             count += 1
         word = count_likes(likes)
-        with open(likes + f' {word}.png', 'wb') as f:
-            f.write(download_image.content)
+        with open(likes + f' {word}.png', 'wb') as file:
+            file.write(download_image.content)
+        photo_info = {'file_name': f'{likes} {word}.png', 'size': type_photo}
+        with open('vk_info.json', 'a', encoding='utf-8') as f:
+            json.dump(photo_info, f, ensure_ascii=False)
+            json.dump('\n', f)
         max_size = 0
 
 
-def write_data(result):
-    get_data(my_id)
-    with open('vk_info.txt', 'a') as f:
-        json.dump(result, f)
-        json.dump('\n', f)
+def get_list_png():
+    data = os.getcwd()
+    docs = os.listdir(data)
+    docs_py = []
+
+    for file in docs:
+        if file[-4:] == '.png':
+            docs_py.append(file)
+    return docs_py
 
 
-res = get_data(my_id)
-get_photo(res)
-write_data(res)
+def load_on_disk():
+    list_png = get_list_png()
+    for i in list_png:
+        yan.upload_file(f'{yan.my_dir}/{i}', i)
+
+# res = get_data(my_id)
+# get_photo(res)
 
 
-
-
-
-
-
-
-# URL = 'https://api.vk.com/method/users.get'
-# params = {
-#     'user_ids': '1',
-#     'access_token': token,
-#     'v': '5.131',
-#     'fields': 'photo_max, education, sex'
-# }
-#
-# result = requests.get(url=URL, params=params)
-# pprint(result.json())
-# spam = result.json()['response'][0]['photo_max']
-# s = requests.get(url=spam)
-# with open('new.png', 'wb') as f:
-#     f.write(s.content)
-
-# url_search = 'https://api.vk.com/method/groups.get'
-# params = {
-#     'user_id': 1,
-#     'extended': 1,
-#     'access_token': token,
-#     'v': '5.131',
-#     'count': '1000',
-#     'field': 'members_count'
-# }
-# res = requests.get(url=url_search, params=params).json()
-# pprint(res)
-
+yan = YaUpLoader(token_ya)
+yan.create_dir_vk()
+load_on_disk()
