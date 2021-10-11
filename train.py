@@ -45,10 +45,12 @@ def count_likes(likes):
         return 'Лайков'
 
 
-def get_photo(result):
+def get_photo(result, quantity_photo=5):
     max_size = 0
     quantity_likes = None
     count = 1
+    dict_photo = {}
+    list_sizes = []
 
     for num, photo in enumerate(result['response']['items'], start=1):
         for i in photo['sizes']:
@@ -67,7 +69,13 @@ def get_photo(result):
         with open('vk_info.json', 'a', encoding='utf-8') as f:
             json.dump(photo_info, f, ensure_ascii=False)
             json.dump('\n', f)
+        dict_photo[f'{likes} {word}.png'] = max_size
         max_size = 0
+
+    for name, size in dict_photo.items():
+        list_sizes.append([name, size])
+    list_sizes.sort(key=lambda el: el[1], reverse=True)
+    list_sizes = list_sizes[:quantity_photo]
 
 
 def get_list_png():
@@ -86,10 +94,25 @@ def load_on_disk():
     for i in list_png:
         yan.upload_file(f'{yan.my_dir}/{i}', i)
 
-# res = get_data(my_id)
-# get_photo(res)
+
+def clear_dir():
+    data = os.getcwd()
+    docs = os.listdir(data)
+    docs_py = []
+
+    for file in docs:
+        if file[-4:] == '.png':
+            docs_py.append(file)
+
+    for i in docs_py:
+        os.remove(f'{data}/{i}')
+
+
+res = get_data(my_id)
+get_photo(res)
 
 
 yan = YaUpLoader(token_ya)
 yan.create_dir_vk()
 load_on_disk()
+clear_dir()

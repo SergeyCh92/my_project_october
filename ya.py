@@ -31,8 +31,8 @@ class YaUpLoader:
         href = self._get_upload_link(disk_path=disk_path).get('href', '')
         response = requests.put(href, data=open(filename, 'rb'))
         response.raise_for_status()
-        # if response.status_code == 201:
-        #     print('Success load')
+        if response.status_code == 201:
+            print(f'Файл {filename} успешно загружен!')
 
     def create_dir_vk(self):
         count = 1
