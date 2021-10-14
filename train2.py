@@ -21,6 +21,7 @@ class Vk:
         self.token = token
         self.URL = 'https://api.vk.com/method/'
         self.list_sizes = []
+        self.list_photo_info = []
 
     def get_data(self, id):
         url_get_photo = URL + 'photos.get'
@@ -70,9 +71,11 @@ class Vk:
             with open(likes + f' {word}{element}.png', 'wb') as file:
                 file.write(download_image.content)
             photo_info = {'file_name': f'{likes} {word}{element}.png', 'size': type_photo}
-            with open('vk_info.json', 'a', encoding='utf-8') as f:
-                json.dump(photo_info, f, ensure_ascii=False, indent=4)
-                # json.dump('\n', f)
+            self.list_photo_info.append(photo_info)
+            if num == len(result['response']['items']):
+                with open('vk_info.json', 'a', encoding='utf-8') as f:
+                    json.dump(self.list_photo_info, f, ensure_ascii=False, indent=4)
+                    # json.dump('\n', f)
             dict_photo[f'{likes} {word}{element}.png'] = max_size
             max_size = 0
             quantity_likes.append(int(likes))
