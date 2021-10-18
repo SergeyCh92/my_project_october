@@ -57,6 +57,10 @@ class Vk:
                 print('Данный профиль является приватным. У Вас нет разрешения на просмотр и скачивание фотографий.')
                 print()
                 return True
+            elif result['error']['error_code'] == 15:
+                print('Страница данного пользователя удалена или еще не создана.')
+                print()
+                return True
         else:
             return False
 
