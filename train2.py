@@ -51,6 +51,15 @@ class Vk:
         elif int(likes[-1]) in digits_list_three:
             return 'Лайков'
 
+    def check_error(self, result):
+        if 'error' in result:
+            if result['error']['error_code'] == 30:
+                print('Данный профиль является приватным. У Вас нет разрешения на просмотр и скачивание фотографий.')
+                print()
+                return True
+        else:
+            return False
+
     def get_photo(self, result, quantity_photo=5):
         max_size = 0
         quantity_likes = []
@@ -58,6 +67,8 @@ class Vk:
 
         for num, photo in enumerate(tqdm(result['response']['items'], desc='Загрузка файлов на ПК'), start=1):
             element = ''
+            if photo['sizes'][0]['height'] == 0:
+                continue
             for i in photo['sizes']:
                 if int(i['height']) + int(i['width']) > max_size:
                     max_size = int(i['height']) + int(i['width'])
@@ -126,6 +137,8 @@ if __name__ == '__main__':
         my_id = input('Введите id vk:\n')
         user = Vk(token)
         res = user.get_data(my_id)
+        if user.check_error(res):
+            continue
         user.get_photo(res)
         yan = YaUpLoader(token_ya)
         yan.create_dir_vk()
