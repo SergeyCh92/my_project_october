@@ -17,6 +17,8 @@ URL = 'https://api.vk.com/method/'
 
 
 class Vk:
+    """Класс создан для взаимодействия с ВК, в качестве атрибута принимает токен для вк."""
+
     def __init__(self, token):
         self.token = token
         self.URL = 'https://api.vk.com/method/'
@@ -24,6 +26,8 @@ class Vk:
         self.list_photo_info = []
 
     def get_data(self, id):
+        """Функция возвращает в словарь с информацией о фотографиях в пользовательском профиле, в качестве аргумента
+        принимает id пользователя ВК."""
         url_get_photo = URL + 'photos.get'
         params = {
             'owner_id': id,
@@ -36,6 +40,8 @@ class Vk:
         return result
 
     def _count_likes(self, likes):
+        """Функция вернет синтаксически верное склонение слова 'лайк', в зависимости от того, какое целочисленное
+        значение имеет аргумент likes"""
         digits_list_one = list(range(11, 20))
         digits_list_two = list(range(2, 5))
         digits_list_three = list(range(5, 10))
@@ -52,6 +58,8 @@ class Vk:
             return 'Лайков'
 
     def check_error(self, result):
+        """Функция вернет True и выведет в консоль уведомление об ошибке, если при выгрузке массива с данными о фото
+        возникли проблемы."""
         if 'error' in result:
             if result['error']['error_code'] == 30:
                 print('Данный профиль является приватным. У Вас нет разрешения на просмотр и скачивание фотографий.')
@@ -65,6 +73,9 @@ class Vk:
             return False
 
     def get_photo(self, result, quantity_photo=5):
+        """В процесе доработки: планируется декомпозиция данной функции.Функция сохраняет фотографии наилучшего качества
+        на ПК, пишет информацию о них в json-файл, и отбирает фото самого высокого качества для последующей загрузки на
+        яндекс-диск."""
         max_size = 0
         quantity_likes = []
         dict_photo = {}
@@ -101,6 +112,7 @@ class Vk:
         self.list_sizes = self.list_sizes[:quantity_photo]
 
     def _get_list_png(self):
+        """Возвращает список имен файлов фотографий наилучшего качества в директории по умолчанию."""
         final_list = []
         # data = os.getcwd()
         # docs = os.listdir(data)
@@ -116,11 +128,13 @@ class Vk:
         return final_list
 
     def load_on_disk(self):
+        """Загружает фотографии на яндекс-диск."""
         list_png = self._get_list_png()
         for i in tqdm(list_png, desc='Загрузка файлов на яндекс диск'):
             yan.upload_file(f'{yan.my_dir}/{i}', i)
 
     def clear_dir(self):
+        """Удаляет в директории по умолчанию все ранее скачанные файлы."""
         data = os.getcwd()
         docs = os.listdir(data)
         docs_py = []

@@ -6,20 +6,24 @@ from pprint import pprint
 
 
 class YaUpLoader:
+    """Класс создан для взаимодействия с яндекс-диском."""
+
     def __init__(self, token):
         self.token = token
         self.my_dir = 'Файлы Вк'
 
     def get_headers(self):
+        """Возвращает необходимые заголовки."""
         return {'Content-Type': 'application/json', 'Authorization': f'OAuth {self.token}'}
 
-    def request(self):
-        url = 'https://cloud-api.yandex.net/v1/disk/resources/files'
-        headers = self.get_headers()
-        response = requests.get(url=url, headers=headers)
-        return response.json()
+    # def request(self):
+    #     url = 'https://cloud-api.yandex.net/v1/disk/resources/files'
+    #     headers = self.get_headers()
+    #     response = requests.get(url=url, headers=headers)
+    #     return response.json()
 
     def _get_upload_link(self, disk_path):
+        """Возвращает словарь с информацией о запросе."""
         url = 'https://cloud-api.yandex.net/v1/disk/resources/upload'
         params = {'path': disk_path, 'overwrite': 'true'}
         headers = self.get_headers()
@@ -28,6 +32,7 @@ class YaUpLoader:
         return response.json()
 
     def upload_file(self, disk_path, filename):
+        """Загружает файлы на яндекс-диск."""
         href = self._get_upload_link(disk_path=disk_path).get('href', '')
         response = requests.put(href, data=open(filename, 'rb'))
         response.raise_for_status()
@@ -35,6 +40,7 @@ class YaUpLoader:
         #     print(f'Файл {filename} успешно загружен!')
 
     def create_dir_vk(self):
+        """Создает новую папку на яндекс-диске."""
         count = 1
         url = 'https://cloud-api.yandex.net/v1/disk/resources'
         headers = self.get_headers()
